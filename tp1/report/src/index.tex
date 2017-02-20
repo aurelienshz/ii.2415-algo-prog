@@ -1,0 +1,81 @@
+\newcommand*{\ROOT}{./src}
+
+\input{\ROOT/preamble.tex}
+
+% Paths towards images :
+\graphicspath{{\ROOT/}}
+
+
+%opening
+\title{II.2415 - Algorithmique et programmation avancée}
+\author{Aurélien SCHILTZ}
+
+\makeatletter
+\@addtoreset{section}{part}
+\makeatother
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\includegraphics[width=8cm]{logo}
+	\par
+	\vspace{4cm}
+
+	{\scshape\Large Compte-rendu de TP\par}
+	\vspace{1.5cm}
+	{\huge\bfseries Complexité algorithmique \par}
+	\vspace{2cm}
+	{\Large Aurélien SCHILTZ\par}
+	\vfill\par
+	\par
+	\vfill
+
+% Bottom of the page
+	{\large 6 janvier 2017}
+\end{titlepage}
+
+
+\newpage
+\begin{abstract}
+
+  L'objectif de ce TP est de comprendre la notion de complexité algorithmique, et de mesurer la complexité des algorithmes suivants :
+  \begin{itemize}
+    \item recherche du minimum dans un tableau ;
+    \item algorithmes de tri (tri par sélection, tri par bulles, tri fusion, tri rapide) ;
+    \item recherche binaire (dichotomie).
+  \end{itemize}
+
+\end{abstract}
+
+% Second abstract (abstract in other language, thanking contributors...)
+% \vspace{3cm}
+% \renewcommand{\abstractname}{Second Abstract}
+% \begin{abstract}
+% Second abstract text
+% \end{abstract}
+
+\newpage
+\tableofcontents
+
+% Declare an introduction that doesn't have a part number in the TOC :
+
+%\newpage
+%\part*{Introduction}
+%\addcontentsline{toc}{part}{Introduction}
+
+
+% Separate parts :
+
+\newpage
+ \input{\ROOT/parts/part1/index}
+
+
+% Appendix (same behaviour as introduction, no part number in TOC)
+
+% \newpage
+% \appendix
+% \part*{Annexes}
+% \addcontentsline{toc}{part}{Annexes}
+
+\end{document}
