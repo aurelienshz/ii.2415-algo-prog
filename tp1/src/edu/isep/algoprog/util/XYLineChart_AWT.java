@@ -1,24 +1,19 @@
 package edu.isep.algoprog.util;
 
-import java.awt.Color;
-import java.awt.Shape;
-import java.util.HashMap;
-
+import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.data.xy.XYDataset;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
 import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.RefineryUtilities;
 import org.jfree.util.ShapeUtilities;
-import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.ChartFactory;
-import org.jfree.chart.plot.Plot;
-import org.jfree.chart.plot.PlotOrientation;
-import org.jfree.data.xy.XYSeriesCollection;
-import org.jfree.chart.renderer.xy.XYDotRenderer;
-import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+
+import java.awt.*;
+import java.util.HashMap;
 
 public class XYLineChart_AWT extends ApplicationFrame {
     private XYSeriesCollection dataset;
@@ -50,8 +45,8 @@ public class XYLineChart_AWT extends ApplicationFrame {
         renderer.setSeriesShape(0, cross);
         renderer.setSeriesPaint(0, Color.RED);
 
-        plot.setDomainCrosshairVisible(true);
-        plot.setRangeCrosshairVisible(true);
+        plot.setDomainCrosshairVisible(false);
+        plot.setRangeCrosshairVisible(false);
 
         setContentPane(chartPanel);
 
@@ -63,8 +58,10 @@ public class XYLineChart_AWT extends ApplicationFrame {
     public void drawHashmap(HashMap values, String seriesName) {
         XYSeries XYvalues = new XYSeries(seriesName);
 
-        for (Object key : values.keySet()) {
-            XYvalues.add((long) key, (long) values.get(key));
+        if (values != null) {
+            for (Object key : values.keySet()) {
+                XYvalues.add((long) key, (long) values.get(key));
+            }
         }
 
         XYSeriesCollection dataset = new XYSeriesCollection();
@@ -75,7 +72,9 @@ public class XYLineChart_AWT extends ApplicationFrame {
     }
 
     public void addHashmapToDataset(HashMap hashMap, String seriesName) {
+        if (hashMap == null) return;
         XYSeries XYvalues = new XYSeries(seriesName);
+
         for (Object key : hashMap.keySet()) {
             XYvalues.add((long) key, (long) hashMap.get(key));
         }

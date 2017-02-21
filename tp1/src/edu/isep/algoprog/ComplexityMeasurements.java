@@ -2,8 +2,9 @@ package edu.isep.algoprog;
 
 import edu.isep.algoprog.util.ArrayUtils;
 import edu.isep.algoprog.util.RandomData;
-import edu.isep.algoprog.util.TimeUtils;
+import edu.isep.algoprog.util.TimerUtils;
 import edu.isep.algoprog.util.XYLineChart_AWT;
+import edu.isep.algoprog.util.search.Dichotomy;
 
 import java.util.HashMap;
 import java.util.function.Consumer;
@@ -23,60 +24,52 @@ public class ComplexityMeasurements {
 
     // time utils : useful to get CPU time of the thread to be able to measure the time complexity of
     // an algorithm
-    private TimeUtils timeUtils;
+    private TimerUtils timerUtils;
 
-    private static final int DATASET_LENGTH_MIN = 0;
-    private static final int DATASET_LENGTH_MAX = 10000;
-    private static final int DATASET_LENGTH_STEP = 300;
-    private static final int DATASET_MIN_VALUE = 0;
-    private static final int DATASET_MAX_VALUE = DATASET_LENGTH_MAX * DATASET_LENGTH_STEP;
+    private static final int datasetMaxValue = Config.DATASET_LENGTH_MAX * Config.DATASET_LENGTH_STEP;
+
+    ComplexityMeasurements() {
+        this.timerUtils = new TimerUtils();
+        this.datasets = generateRandomDatasets();
+    }
 
     private int[][] generateRandomDatasets() {
         int index = 0;
-        int numberOfDatasets = ((DATASET_LENGTH_MAX - DATASET_LENGTH_MIN) / DATASET_LENGTH_STEP) + 1;
+        int numberOfDatasets = ((Config.DATASET_LENGTH_MAX - Config.DATASET_LENGTH_MIN) / Config.DATASET_LENGTH_STEP) + 1;
         int[][] datasets = new int[numberOfDatasets][];
         for (
-                int datasetLength = DATASET_LENGTH_MIN;
-                datasetLength <= DATASET_LENGTH_MAX;
-                datasetLength += DATASET_LENGTH_STEP) {
-            int[] data = RandomData.generate1d(datasetLength, DATASET_MIN_VALUE, DATASET_MAX_VALUE);
+                int datasetLength = Config.DATASET_LENGTH_MIN;
+                datasetLength <= Config.DATASET_LENGTH_MAX;
+                datasetLength += Config.DATASET_LENGTH_STEP) {
+            int[] data = RandomData.generate1d(datasetLength, Config.DATASET_MIN_VALUE, datasetMaxValue);
             datasets[index] = data;
             index++;
         }
         return datasets;
     }
 
-    ComplexityMeasurements() {
-        this.timeUtils = new TimeUtils();
-        this.datasets = generateRandomDatasets();
-    }
-
     void runMeasurements() {
+        this.quickSortDurations = computeQuickSortDurations();
         this.findMinDurations = computeFindMinDurations();
         this.mergeSortDurations = computeMergeSortDurations();
-        this.selectionSortDurations = computeSelectionSortDurations();
         this.bubbleSortDurations = computeBubbleSortDurations();
-        this.quickSortDurations = computeQuickSortDurations();
+        this.selectionSortDurations = computeSelectionSortDurations();
         this.dichotomyDurations = computeDichotomyDurations();
     }
 
     void drawGraphs() {
-        XYLineChart_AWT chart = new XYLineChart_AWT("findMin time complexity");
-        chart.drawHashmap(findMinDurations, "findMinDurations");
-
-        chart = new XYLineChart_AWT("Merge sort time complexity");
-        chart.drawHashmap(mergeSortDurations, "mergeSortDurations");
-
-        chart = new XYLineChart_AWT("Selection sort time complexity");
-        chart.drawHashmap(selectionSortDurations, "selectionSortDurations");
-
-        chart = new XYLineChart_AWT("Bubble sort time complexity");
-        chart.drawHashmap(bubbleSortDurations, "bubbleSortDurations");
-
-        chart = new XYLineChart_AWT("Quick sort time complexity");
-        chart.drawHashmap(quickSortDurations, "quickSortDurations");
-
-//        XYLineChart_AWT.graphHashMap(findMin, "findMin");
+        new XYLineChart_AWT("findMin time complexity")
+                .drawHashmap(findMinDurations, "findMinDurations");
+        new XYLineChart_AWT("Merge sort time complexity")
+                .drawHashmap(mergeSortDurations, "mergeSortDurations");
+        new XYLineChart_AWT("Selection sort time complexity")
+                .drawHashmap(selectionSortDurations, "selectionSortDurations");
+        new XYLineChart_AWT("Bubble sort time complexity")
+                .drawHashmap(bubbleSortDurations, "bubbleSortDurations");
+        new XYLineChart_AWT("Quick sort time complexity")
+                .drawHashmap(quickSortDurations, "quickSortDurations");
+        new XYLineChart_AWT("Binary search time complexity")
+                .drawHashmap(dichotomyDurations, "binary search durations");
     }
 
     void drawSortGraphs() {
@@ -90,17 +83,23 @@ public class ComplexityMeasurements {
         chart.drawGraph();
     }
 
+    /**
+     * Time an ArrayUtils method passed as a method reference
+     *
+     * How to call it : computeFunctionDuration(ArrayUtils::findMin); (method reference)
+     * or computeFunctionDuration(au -> au.findMin()); (lambda)
+     */
     private HashMap<Long, Long> computeFunctionDuration(Consumer<ArrayUtils> consumer) {
         HashMap<Long, Long> durations = new HashMap<>(datasets.length);
 
         for (int[] data : datasets) {
-            ArrayUtils arrayUtils = new ArrayUtils(data);
-            timeUtils.startTimer();
+            ArrayUtils arrayUtils = new ArrayUtils(data.clone());
+            timerUtils.startTimer();
 
             consumer.accept(arrayUtils);
 
-            timeUtils.endTimer();
-            durations.put((long) data.length, timeUtils.getDuration());
+            timerUtils.endTimer();
+            durations.put((long) data.length, timerUtils.getDuration());
         }
 
         return durations;
@@ -127,8 +126,31 @@ public class ComplexityMeasurements {
     }
 
     private HashMap<Long, Long> computeDichotomyDurations() {
-        System.out.println("TODO : Dichotomy durations"); // TODO
-        HashMap<Long, Long> durations = new HashMap<>(datasets.length);
+        int numberOfDatasets = ((Config.DICHOTOMY_LENGTH_MAX - Config.DICHOTOMY_LENGTH_MIN) / Config.DICHOTOMY_LENGTH_STEP) + 1;
+        HashMap<Long, Long> durations = new HashMap<>(numberOfDatasets);
+
+        for (
+                int datasetLength = Config.DICHOTOMY_LENGTH_MIN;
+                datasetLength <= Config.DICHOTOMY_LENGTH_MAX;
+                datasetLength += Config.DICHOTOMY_LENGTH_STEP) {
+
+            Dichotomy dichotomy = new Dichotomy(datasetLength);
+            int toFind = 0;
+
+            timerUtils.startTimer();
+            int index = dichotomy.findIndex(toFind);
+            timerUtils.endTimer();
+
+            if (index == -1) System.out.println("T'as merdé, Jack");
+            System.out.println("Longueur : " + datasetLength);
+            System.out.println("toFind : " + toFind);
+            System.out.println("index : " + index);
+            System.out.println("check : " + index);
+            System.out.println("");
+
+
+            durations.put((long) datasetLength, timerUtils.getDuration());
+        }
         return durations;
     }
 }

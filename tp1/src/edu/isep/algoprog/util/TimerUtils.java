@@ -3,12 +3,12 @@ package edu.isep.algoprog.util;
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 
-public class TimeUtils {
+public class TimerUtils {
     private ThreadMXBean threadMXBean;
     private long startTime;
     private long endTime;
 
-    public TimeUtils() {
+    public TimerUtils() {
         this.threadMXBean = ManagementFactory.getThreadMXBean();
     }
 
@@ -24,7 +24,7 @@ public class TimeUtils {
         return endTime - startTime;
     }
 
-    public long getCpuTime() {
+    private long getCpuTime() {
         return threadMXBean.isCurrentThreadCpuTimeSupported() ? threadMXBean.getCurrentThreadCpuTime() : 0L;
     }
 }

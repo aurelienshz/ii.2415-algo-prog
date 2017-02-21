@@ -24,13 +24,5 @@ public class BubbleSorter extends ArrayUtils {
                 }
             }
         } while (hadToSwap);
-
-        System.out.println("");
-        System.out.println("");
-        System.out.println("");
-        System.out.println("YOLOSWAG");
-        for(int i: data) {
-//            System.out.println(i);
-        }
     }
 }

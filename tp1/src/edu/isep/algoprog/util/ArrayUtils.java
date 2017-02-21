@@ -1,6 +1,5 @@
 package edu.isep.algoprog.util;
 
-import com.sun.xml.internal.bind.v2.model.annotation.Quick;
 import edu.isep.algoprog.util.sort.BubbleSorter;
 import edu.isep.algoprog.util.sort.MergeSorter;
 import edu.isep.algoprog.util.sort.QuickSorter;
@@ -59,7 +58,6 @@ public class ArrayUtils {
         for (int i : data) {
             System.out.println(i);
         }
-        System.out.println("=== Array length : " + data.length + " ===");
         System.out.println("===========================");
         System.out.println("");
     }

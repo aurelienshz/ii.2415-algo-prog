@@ -3,7 +3,7 @@
 \input{\ROOT/preamble.tex}
 
 % Paths towards images :
-\graphicspath{{\ROOT/}}
+\graphicspath{{\ROOT/}{\ROOT/img/}}
 
 
 %opening
@@ -49,11 +49,16 @@
 \end{abstract}
 
 % Second abstract (abstract in other language, thanking contributors...)
-% \vspace{3cm}
-% \renewcommand{\abstractname}{Second Abstract}
-% \begin{abstract}
-% Second abstract text
-% \end{abstract}
+\vspace{3cm}
+\renewcommand{\abstractname}{Note relative au code écrit pour ce TP}
+\begin{abstract}
+L'intégralité du code écrit pour ce TP est disponible sur le dépôt Github suivant, dans le dossier nommé \texttt{tp1} :
+
+\begin{center}
+  \url{https://github.com/aurelienshz/ii.2415-algo-prog}
+\end{center}
+
+\end{abstract}
 
 \newpage
 \tableofcontents
@@ -69,7 +74,10 @@
 
 \newpage
  \input{\ROOT/parts/part1/index}
-
+\newpage
+ \input{\ROOT/parts/part2/index}
+\newpage
+ \input{\ROOT/parts/part3/index}
 
 % Appendix (same behaviour as introduction, no part number in TOC)
 
