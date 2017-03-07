@@ -1,4 +1,4 @@
-package edu.isep.algoprog.util.search;
+package edu.isep.algoprog.search;
 
 public class Dichotomy {
     private int[] data;

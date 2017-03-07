@@ -12,6 +12,6 @@ public class Main {
 
         complexityMeasurements.drawGraphs();
 
-        complexityMeasurements.drawSortGraphs();
+        complexityMeasurements.drawAllSortGraphs();
     }
 }

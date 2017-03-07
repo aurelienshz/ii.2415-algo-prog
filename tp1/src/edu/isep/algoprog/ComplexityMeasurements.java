@@ -1,38 +1,63 @@
 package edu.isep.algoprog;
 
-import edu.isep.algoprog.util.ArrayUtils;
+import edu.isep.algoprog.findmin.MinimumFinder;
+import edu.isep.algoprog.sort.AbstractSorter;
+import edu.isep.algoprog.sort.SorterFactory;
+import edu.isep.algoprog.sort.SorterImplementation;
+import edu.isep.algoprog.sort.exception.SortingAlgorithmNotYetImplementedException;
 import edu.isep.algoprog.util.RandomData;
-import edu.isep.algoprog.util.TimerUtils;
-import edu.isep.algoprog.util.XYLineChart_AWT;
-import edu.isep.algoprog.util.search.Dichotomy;
+import edu.isep.algoprog.util.Timer;
+import edu.isep.algoprog.util.ChartApplicationFrame;
+import edu.isep.algoprog.search.Dichotomy;
 
 import java.util.HashMap;
-import java.util.function.Consumer;
 
 public class ComplexityMeasurements {
-    // Hashmaps <input length, execution time> for every algorithm
-    // Will be used to draw graphs :
+    // Hashmaps <input length, execution time> for findMin and dichotomy
     private HashMap<Long, Long> findMinDurations;
-    private HashMap<Long, Long> mergeSortDurations;
-    private HashMap<Long, Long> selectionSortDurations;
-    private HashMap<Long, Long> bubbleSortDurations;
-    private HashMap<Long, Long> quickSortDurations;
     private HashMap<Long, Long> dichotomyDurations;
+
+    // All the complexity measurements for the sorting algorithms, in a single hashmap. Yeah. That's how we do it around here.
+    private HashMap<SorterImplementation, HashMap<Long, Long>> complexityMeasurementsResults = new HashMap<>(SorterImplementation.values().length);
 
     // Datasets that will be generated later, used as dummy data to test the time complexity of the algorithms
     private int[][] datasets;
 
     // time utils : useful to get CPU time of the thread to be able to measure the time complexity of
     // an algorithm
-    private TimerUtils timerUtils;
+    private Timer timer = new Timer();
 
     private static final int datasetMaxValue = Config.DATASET_LENGTH_MAX * Config.DATASET_LENGTH_STEP;
 
     ComplexityMeasurements() {
-        this.timerUtils = new TimerUtils();
         this.datasets = generateRandomDatasets();
     }
 
+    /**
+     * Run measurements for min finding and dichotomy, then for all implemented sorting algorithms
+     */
+    void runMeasurements() {
+        this.findMinDurations = computeFindMinDurations();
+        this.dichotomyDurations = computeDichotomyDurations();
+
+        for (SorterImplementation impl: SorterImplementation.values()) {
+            impl.getAlgorithmName();
+            HashMap<Long, Long> durations = null;
+            try {
+                durations = computeSortFunctionDuration(impl);
+            } catch (SortingAlgorithmNotYetImplementedException e) {
+                System.out.println("Some algorithm present in the sorting algorithms implementation " +
+                        "enum was not implemented in the SorterFactory.");
+                System.out.println("Nested exception is : e.getMessage()");
+                e.printStackTrace();
+            }
+            complexityMeasurementsResults.put(impl, durations);
+        }
+    }
+
+    /**
+     * Generate the configured number of random datasets to run our algorithms on them
+     */
     private int[][] generateRandomDatasets() {
         int index = 0;
         int numberOfDatasets = ((Config.DATASET_LENGTH_MAX - Config.DATASET_LENGTH_MIN) / Config.DATASET_LENGTH_STEP) + 1;
@@ -48,81 +73,69 @@ public class ComplexityMeasurements {
         return datasets;
     }
 
-    void runMeasurements() {
-        this.quickSortDurations = computeQuickSortDurations();
-        this.findMinDurations = computeFindMinDurations();
-        this.mergeSortDurations = computeMergeSortDurations();
-        this.bubbleSortDurations = computeBubbleSortDurations();
-        this.selectionSortDurations = computeSelectionSortDurations();
-        this.dichotomyDurations = computeDichotomyDurations();
-    }
-
+    /**
+     * Draw all graphs for the measurements previously made :
+     */
     void drawGraphs() {
-        new XYLineChart_AWT("findMin time complexity")
+        new ChartApplicationFrame("findMin time complexity")
                 .drawHashmap(findMinDurations, "findMinDurations");
-        new XYLineChart_AWT("Merge sort time complexity")
-                .drawHashmap(mergeSortDurations, "mergeSortDurations");
-        new XYLineChart_AWT("Selection sort time complexity")
-                .drawHashmap(selectionSortDurations, "selectionSortDurations");
-        new XYLineChart_AWT("Bubble sort time complexity")
-                .drawHashmap(bubbleSortDurations, "bubbleSortDurations");
-        new XYLineChart_AWT("Quick sort time complexity")
-                .drawHashmap(quickSortDurations, "quickSortDurations");
-        new XYLineChart_AWT("Binary search time complexity")
+        new ChartApplicationFrame("Binary search time complexity")
                 .drawHashmap(dichotomyDurations, "binary search durations");
+
+        for (SorterImplementation impl: SorterImplementation.values()) {
+            // Prepare String values and dataset to be graphed :
+            String chartName = impl.getAlgorithmName() + " time complexity";
+            String seriesLabel = impl.getAlgorithmName() + " durations";
+            HashMap<Long, Long> complexityMeasurementsResult = complexityMeasurementsResults.get(impl);
+
+            // Fire !
+            new ChartApplicationFrame(chartName).drawHashmap(complexityMeasurementsResult, seriesLabel);
+        }
     }
 
-    void drawSortGraphs() {
-        XYLineChart_AWT chart = new XYLineChart_AWT("All sorting algorithms");
+    /**
+     * Draw all sorting algorithm time measurements on a single graph
+     */
+    void drawAllSortGraphs() {
+        ChartApplicationFrame chart = new ChartApplicationFrame("All sorting algorithms");
         chart.setChartTitle("All sorting algorithms");
 
-        chart.addHashmapToDataset(mergeSortDurations, "Merge sort");
-        chart.addHashmapToDataset(selectionSortDurations, "Selection sort");
-        chart.addHashmapToDataset(bubbleSortDurations, "Bubble sort");
-        chart.addHashmapToDataset(quickSortDurations, "Quick sort");
+        for (SorterImplementation impl: SorterImplementation.values()) {
+            chart.addHashmapToDataset(complexityMeasurementsResults.get(impl), impl.getAlgorithmName());
+        }
         chart.drawGraph();
     }
 
     /**
-     * Time an ArrayUtils method passed as a method reference
-     *
-     * How to call it : computeFunctionDuration(ArrayUtils::findMin); (method reference)
-     * or computeFunctionDuration(au -> au.findMin()); (lambda)
+     * Time an implementation of a sorting algorithm :
      */
-    private HashMap<Long, Long> computeFunctionDuration(Consumer<ArrayUtils> consumer) {
+    private HashMap<Long, Long> computeSortFunctionDuration(SorterImplementation impl) throws SortingAlgorithmNotYetImplementedException {
         HashMap<Long, Long> durations = new HashMap<>(datasets.length);
-
         for (int[] data : datasets) {
-            ArrayUtils arrayUtils = new ArrayUtils(data.clone());
-            timerUtils.startTimer();
+            // Create a new sorter with a new clone of the data :
+            AbstractSorter sorter = SorterFactory.createSorter(impl, data.clone());
 
-            consumer.accept(arrayUtils);
-
-            timerUtils.endTimer();
-            durations.put((long) data.length, timerUtils.getDuration());
+            timer.startTimer();
+            sorter.sort();
+            timer.endTimer();
+            durations.put((long) data.length, timer.getDuration());
         }
 
         return durations;
     }
 
     private HashMap<Long, Long> computeFindMinDurations() {
-        return computeFunctionDuration(ArrayUtils::findMin);
-    }
+        HashMap<Long, Long> durations = new HashMap<>(datasets.length);
+        for (int[] data : datasets) {
+            // Create a new sorter with a new clone of the data :
+            MinimumFinder minimumFinder = new MinimumFinder(data);
 
-    private HashMap<Long, Long> computeMergeSortDurations() {
-        return computeFunctionDuration(ArrayUtils::mergeSort);
-    }
-
-    private HashMap<Long, Long> computeSelectionSortDurations() {
-        return computeFunctionDuration(ArrayUtils::selectionSort);
-    }
-
-    private HashMap<Long, Long> computeQuickSortDurations() {
-        return computeFunctionDuration(ArrayUtils::quickSort);
-    }
-
-    private HashMap<Long, Long> computeBubbleSortDurations() {
-        return computeFunctionDuration(ArrayUtils::bubbleSort);
+            timer.startTimer();
+            minimumFinder.findMin();
+            timer.endTimer();
+            durations.put((long) data.length, timer.getDuration());
+        }
+        return durations;
     }
 
     private HashMap<Long, Long> computeDichotomyDurations() {
@@ -137,19 +150,13 @@ public class ComplexityMeasurements {
             Dichotomy dichotomy = new Dichotomy(datasetLength);
             int toFind = 0;
 
-            timerUtils.startTimer();
+            timer.startTimer();
             int index = dichotomy.findIndex(toFind);
-            timerUtils.endTimer();
+            timer.endTimer();
 
-            if (index == -1) System.out.println("T'as merdé, Jack");
-            System.out.println("Longueur : " + datasetLength);
-            System.out.println("toFind : " + toFind);
-            System.out.println("index : " + index);
-            System.out.println("check : " + index);
-            System.out.println("");
+            if (index == -1) System.out.println("Element not found");
 
-
-            durations.put((long) datasetLength, timerUtils.getDuration());
+            durations.put((long) datasetLength, timer.getDuration());
         }
         return durations;
     }

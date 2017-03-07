@@ -1,9 +1,12 @@
-package edu.isep.algoprog.util.sort;
+package edu.isep.algoprog.sort.impl;
 
-public class MergeSorter {
-    int[] data;
+import edu.isep.algoprog.sort.AbstractSorter;
+
+public class MergeSorter extends AbstractSorter {
+    private int[] data;
 
     public MergeSorter(int[] data) {
+        super(data);
         this.data = data;
     }
 

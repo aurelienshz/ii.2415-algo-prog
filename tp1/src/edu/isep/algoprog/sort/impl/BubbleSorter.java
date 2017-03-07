@@ -1,8 +1,8 @@
-package edu.isep.algoprog.util.sort;
+package edu.isep.algoprog.sort.impl;
 
-import edu.isep.algoprog.util.ArrayUtils;
+import edu.isep.algoprog.sort.AbstractSorter;
 
-public class BubbleSorter extends ArrayUtils {
+public class BubbleSorter extends AbstractSorter {
     private int[] data;
 
     public BubbleSorter(int[] data) {

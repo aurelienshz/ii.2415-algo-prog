@@ -15,11 +15,11 @@ import org.jfree.util.ShapeUtilities;
 import java.awt.*;
 import java.util.HashMap;
 
-public class XYLineChart_AWT extends ApplicationFrame {
+public class ChartApplicationFrame extends ApplicationFrame {
     private XYSeriesCollection dataset;
     private String chartTitle = "";
 
-    public XYLineChart_AWT(String applicationTitle) {
+    public ChartApplicationFrame(String applicationTitle) {
         super(applicationTitle);
         this.dataset = new XYSeriesCollection();
     }
