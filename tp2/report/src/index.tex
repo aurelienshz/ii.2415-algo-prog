@@ -1,0 +1,91 @@
+\newcommand*{\ROOT}{./src}
+
+\input{\ROOT/preamble.tex}
+
+% Paths towards images :
+\graphicspath{{\ROOT/}{\ROOT/img/}}
+
+
+
+%opening
+\title{II.2415 - Algorithmique et programmation avancée}
+\author{Aurélien SCHILTZ}
+
+\makeatletter
+\@addtoreset{section}{part}
+\makeatother
+
+\begin{document}
+
+\begin{titlepage}
+	\centering
+	\includegraphics[width=8cm]{logo}
+	\par
+	\vspace{4cm}
+
+	{\scshape\Large Compte-rendu de TP\par}
+	\vspace{1.5cm}
+	{\huge\bfseries TP 2 - Exercising design patterns \par}
+	\vspace{2cm}
+	{\Large Aurélien SCHILTZ\par}
+	\vfill\par
+	\par
+	\vfill
+
+% Bottom of the page
+	{\large 7 mars 2017}
+\end{titlepage}
+
+
+\newpage
+\begin{abstract}
+
+  This practical class has three main objectives:
+  Ce TP a trois objectifs principaux :
+  \begin{itemize}
+    \item identifier le besoin d'un design pattern, et identifier quel design pattern est requis ;
+    \item commenter un design pattern existant ;
+    \item refactoriser un code existant pour le conformer à un design pattern.
+  \end{itemize}
+
+\end{abstract}
+
+% Second abstract (abstract in other language, thanking contributors...)
+\vspace{3cm}
+\renewcommand{\abstractname}{Note relative au code écrit pour ce TP}
+\begin{abstract}
+L'intégralité du code écrit pour ce TP est disponible sur le dépôt Github suivant, dans le dossier nommé \texttt{tp2} :
+
+\begin{center}
+  \url{https://github.com/aurelienshz/ii.2415-algo-prog}
+\end{center}
+
+\end{abstract}
+
+\newpage
+\tableofcontents
+
+% Declare an introduction that doesn't have a part number in the TOC :
+
+%\newpage
+%\part*{Introduction}
+%\addcontentsline{toc}{part}{Introduction}
+
+
+% Separate parts :
+
+\newpage
+ \input{\ROOT/parts/part1/index}
+
+\newpage
+ \input{\ROOT/parts/part2/index}
+
+
+% Appendix (same behaviour as introduction, no part number in TOC)
+
+% \newpage
+% \appendix
+% \part*{Annexes}
+% \addcontentsline{toc}{part}{Annexes}
+
+\end{document}
