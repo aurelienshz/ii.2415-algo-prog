@@ -8,7 +8,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.IntStream;
 
-import static edu.isep.algoprog.tp3.GraphUtils.computeNumberOfNodesFromLinks;
+import static edu.isep.algoprog.tp3.GraphUtils.computeNumberOfNodes;
+import static edu.isep.algoprog.tp3.GraphUtils.computeRequiredNodeListLength;
 
 /**
  * In this implementation, we consider all nodes ranging from zero to the max index found in the descriptive file
@@ -25,15 +26,15 @@ public class Graph {
         adj = new ArrayList[nodeCount];
     }
 
-    public Graph(String filePath) throws IOException {
-        List<String> lines = Files.readAllLines(Paths.get(filePath),
-                StandardCharsets.UTF_8);
-        new Graph(lines);
+    public static Graph createFromFile(String filePath) throws IOException {
+        List<String> lines = Files.readAllLines(Paths.get(filePath), StandardCharsets.UTF_8);
+        return new Graph(lines);
     }
 
     public Graph(List<String> edgesDescription) {
-        nodeCount = computeNumberOfNodesFromLinks(edgesDescription);
-        adj = new ArrayList[nodeCount];
+        int listLength = computeRequiredNodeListLength(edgesDescription);
+        nodeCount = computeNumberOfNodes(edgesDescription);
+        adj = new ArrayList[listLength];
         addEdgesToGraph(edgesDescription);
     }
 
@@ -110,7 +111,7 @@ public class Graph {
         desc += "Number of nodes : " + getNodeCount() + ls;
         desc += "Adjacency list : " + describeAdjacency() + ls + ls;
 
-        for (int i = 0; i < getNodeCount(); i++) {
+        for (int i = 0; i < adj.length; i++) {
             desc += "Neighbors of node " + i + " : " + getNeighbors(i) + ls;
             desc += "Degree of node " + i + " : " + getDegree(i) + ls;
             desc += "----" + ls;
@@ -121,28 +122,13 @@ public class Graph {
         return desc;
     }
 
-    /**
-     * Count nodes that actually have vertices or neighbors :
-     */
-    private int countLinkedNodes() {
-        int j = 0;
-        for (int i = 0; i < getNodeCount(); i++) {
-            int degree = getDegree(i);
-
-            // if node has no neighbors, and its degree is null, let's ignore it :
-            if (degree > 0 && getNeighbors(i).size() > 0)
-                j++;
-        }
-        return j;
-    }
-
     public String degreeCharacteristicValues() {
         String ls = System.getProperty("line.separator");
         int max = 0;
         int min = 0;
         int tot = 0;
         // build a list of node degrees :
-        for (int i = 0; i < getNodeCount(); i++) {
+        for (int i = 0; i < adj.length; i++) {
             int degree = getDegree(i);
 
             max = degree > max ? degree : max;
@@ -150,10 +136,26 @@ public class Graph {
             tot += degree;
         }
 
-        double mean = ((double) tot) / countLinkedNodes();
+        double mean = ((double) tot) / nodeCount;
 
         return "Max degreee : " + max + ls
                 + "Min degreee : " + min + ls
                 + "Mean degreee : " + mean + ls;
+    }
+
+    public List<Map.Entry<Integer, Integer>> getNodesSortedByDegree() {
+        Map<Integer, Integer> nodeToDegrees = new HashMap<>(adj.length);
+
+        for (int i = 0; i < adj.length; i++) {
+            int degree = getDegree(i);
+            nodeToDegrees.put(i, degree);
+        }
+
+        List<Map.Entry<Integer, Integer>> nodeToDegreesList = new ArrayList<>(nodeToDegrees.entrySet());
+        // sort by value :
+        nodeToDegreesList.sort(Comparator.comparing(Map.Entry::getValue));
+        Collections.reverse(nodeToDegreesList);
+
+        return nodeToDegreesList;
     }
 }
