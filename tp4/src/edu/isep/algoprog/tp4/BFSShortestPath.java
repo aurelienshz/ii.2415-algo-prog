@@ -43,11 +43,11 @@ public class BFSShortestPath {
     }
 
     public Integer distTo(int nodeToGo) {
-        if (hasPathTo(nodeToGo)) {
-            return distance[nodeToGo];
-        }
+        // This could return distance[nodeToGo] directly, but it's easier to understand
+        // this method's contract when it's written like this
+        if (!hasPathTo(nodeToGo)) return null;
 
-        return null;
+        return distance[nodeToGo];
     }
 
     public List<Integer> getShortestPath(int nodeToGo) {
