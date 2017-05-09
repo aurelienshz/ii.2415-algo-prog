@@ -1,6 +1,7 @@
 package edu.isep.algoprog.tp4;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -18,9 +19,29 @@ public class Main {
 
         // UnweightedGraph described by adjacency list, from file :
         try {
-            UnweightedGraph graphSP = UnweightedGraph.createFromFile("graph-DFS-SP.txt", false);
+            UnweightedGraph graphSP = UnweightedGraph.createFromFile("graph-BFS-SP.txt", false);
             shortestPathsApplication(graphSP);
             System.out.println();
+        } catch (IOException e) {
+            System.out.println("Could not read input file");
+            e.printStackTrace();
+        }
+
+        try {
+            WeightedDigraph graph = WeightedDigraph.createFromFile("graph-WDG.txt");
+            List<DirectedEdge>[] adjacencyList = graph.getAdjacencyList();
+
+
+            // <describing a weighted digraph>
+            for (int i = 0; i < adjacencyList.length; i++) {
+                List<DirectedEdge> edges = adjacencyList[i];
+                System.out.println(i + " : ");
+                if (edges != null)
+                    edges.forEach(e -> System.out.println(e.to() + " | " + e.weight()));
+            }
+            // </describing a weighted digraph>
+
+
         } catch (IOException e) {
             System.out.println("Could not read input file");
             e.printStackTrace();
@@ -28,7 +49,7 @@ public class Main {
     }
 
     private static void testDfs(UnweightedGraph graph) {
-        // TODO add to comments that those functions can be also tested by making the graph unconnected (for example delete the "2 5" line in the description file and get 2 components and different traversals)
+        // TODO add to comments that those functions are interesting when making the graph unconnected (for example delete the "2 5" line in the description file and get 2 components and different traversals)
 
         Traversal traversal = new Traversal(graph);
 
@@ -67,6 +88,16 @@ public class Main {
     }
 
     public static void shortestPathsApplication(UnweightedGraph graph) {
+        Traversal traversal = new Traversal(graph);
+        traversal.bfs(5);
+
+        Integer[] pouet = traversal.getBfsShortestPath().getDistanceArray();
+        for (int i = 0; i < pouet.length; i++) {
+            System.out.println(i + " : " + pouet[i]);
+        }
+
+        // TODO excentricity of each vertex, diameter of the graph
+
 
     }
 }
